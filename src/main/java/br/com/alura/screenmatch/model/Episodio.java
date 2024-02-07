@@ -17,7 +17,7 @@ public class Episodio {
 
         try{
             this.avaliacaoImdb = Double.valueOf(dadosEpisodios.avaliacaoImdb());
-        } catch (NumberFormatException | DateTimeParseException e) {
+        } catch (NumberFormatException e) {
             this.avaliacaoImdb = 0.0;
         }
 
