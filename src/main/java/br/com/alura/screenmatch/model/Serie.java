@@ -1,13 +1,31 @@
 package br.com.alura.screenmatch.model;
 
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity //Indica ao JPA que a classe será uma tabela do banco de dados
+@Table(name = "series") //Informe o nome da tabela com base no nome da classe
 public class Serie {
+    @Id //Indica a chave primária
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //Indica qual será a estratégia de incremento do valor da chave
+    private Long id;
+    @Column(unique = true) //Indica que a coluna "titulo" terá índice único, não podendo repetir titulos
     private String titulo;
     private Integer totalTemporadas;
     private Double avaliacaoImdb;
+    @Enumerated(EnumType.STRING) //Enumera os valores podendo ser decimal ou String
     private Categoria genero;
     private String atores;
-    private String poste;
+    private String poster;
     private String sinopse;
+    @Transient //Indica que esse dado não será incluso na tabela
+    private List<Episodio> episodios = new ArrayList<>();
+
+    public Serie() {
+
+    }
 
     public Serie(DadosSerie dadosSerie) {
         this.titulo = dadosSerie.titulo();
@@ -22,8 +40,24 @@ public class Serie {
 
         this.genero = Categoria.fromPortugues(dadosSerie.genero().split(",")[0].trim());
         this.atores = dadosSerie.atores();
-        this.poste = dadosSerie.poster();
+        this.poster = dadosSerie.poster();
         this.sinopse = Tradutor.traduzirInglesParaPortugues(dadosSerie.sinopse());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        this.episodios = episodios;
     }
 
     public String getTitulo() {
@@ -66,12 +100,12 @@ public class Serie {
         this.atores = atores;
     }
 
-    public String getPoste() {
-        return poste;
+    public String getPoster() {
+        return poster;
     }
 
-    public void setPoste(String poste) {
-        this.poste = poste;
+    public void setPoster(String poster) {
+        this.poster = poster;
     }
 
     public String getSinopse() {
@@ -89,7 +123,7 @@ public class Serie {
                 ", totalTemporadas=" + totalTemporadas +
                 ", avaliacaoImdb=" + avaliacaoImdb +
                 ", atores='" + atores + '\'' +
-                ", poste='" + poste + '\'' +
+                ", poster='" + poster + '\'' +
                 ", sinopse='" + sinopse + '\'';
     }
 }
