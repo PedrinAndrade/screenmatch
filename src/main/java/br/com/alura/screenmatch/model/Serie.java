@@ -20,21 +20,19 @@ public class Serie {
     private String atores;
     private String poster;
     private String sinopse;
-    @Transient //Indica que esse dado não será incluso na tabela
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
     public Serie() {
-
     }
 
     public Serie(DadosSerie dadosSerie) {
         this.titulo = dadosSerie.titulo();
         this.totalTemporadas = dadosSerie.totalTemporadas();
 
-        try{
+        try {
             this.avaliacaoImdb = Double.valueOf(dadosSerie.avaliacaoImdb());
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             this.avaliacaoImdb = 0.0;
         }
 
@@ -57,6 +55,7 @@ public class Serie {
     }
 
     public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(e -> e.setSerie(this));
         this.episodios = episodios;
     }
 
@@ -118,12 +117,13 @@ public class Serie {
 
     @Override
     public String toString() {
-        return  "genero=" + genero +
+        return "genero=" + genero +
                 ", titulo='" + titulo + '\'' +
                 ", totalTemporadas=" + totalTemporadas +
                 ", avaliacaoImdb=" + avaliacaoImdb +
                 ", atores='" + atores + '\'' +
                 ", poster='" + poster + '\'' +
-                ", sinopse='" + sinopse + '\'';
+                ", sinopse='" + sinopse + '\'' +
+                ", episodios='" + episodios + '\'';
     }
 }
