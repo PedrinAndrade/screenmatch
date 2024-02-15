@@ -1,9 +1,6 @@
 package br.com.alura.screenmatch.principal;
 
-import br.com.alura.screenmatch.model.DadosSerie;
-import br.com.alura.screenmatch.model.DadosTemporadas;
-import br.com.alura.screenmatch.model.Episodio;
-import br.com.alura.screenmatch.model.Serie;
+import br.com.alura.screenmatch.model.*;
 import br.com.alura.screenmatch.repository.SerieRepository;
 import br.com.alura.screenmatch.service.ConsumoApi;
 import br.com.alura.screenmatch.service.ConverteDados;
@@ -38,6 +35,11 @@ public class Principal {
                     1 - Buscar séries
                     2 - Buscar episódios
                     3 - Listar séries buscadas
+                    4 - Buscar série por título
+                    5 - Buscar séries por ator ou atriz
+                    6 - Top 5 séries
+                    7 - Buscar séries por categoria
+                    8 - Buscar séries por quantidade de temporadas
                     0 - Sair
                     
                     Digite a opção desejada:""";
@@ -56,6 +58,22 @@ public class Principal {
                 case 3:
                     listarSeriesBuscadas();
                     break;
+                case 4:
+                    buscarSeriePorTitulo();
+                    break;
+                case 5:
+                    buscarSeriePorAtor();
+                    break;
+                case 6:
+                    buscarTop5Series();
+                    break;
+                case 7:
+                    buscarSeriePorCategoria();
+                    break;
+                case 8:
+                    buscarEpisodioPorQuantidadeTemporadas();
+                    break;
+
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -74,7 +92,7 @@ public class Principal {
     }
 
     private DadosSerie getDadosSerie() {
-
+        System.out.println("Informe a série que deseja pesquisar: ");
         var nomeSerie = scanner.nextLine();
         var json = api.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + API_KEY);
         DadosSerie dados = conversor.obterDados(json, DadosSerie.class);
@@ -86,9 +104,7 @@ public class Principal {
         System.out.println("Escolha uma série pelo nome: ");
         var nomeSerie = scanner.nextLine();
 
-        Optional<Serie> serie = series.stream()
-                .filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
-                .findFirst();
+        Optional<Serie> serie = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
 
         if(serie.isPresent()){
             var serieEncontrada = serie.get();
@@ -123,5 +139,62 @@ public class Principal {
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);
 
+    }
+
+    private void buscarSeriePorTitulo() {
+        System.out.println("Escolha uma série pelo nome: ");
+        var nomeSerie = scanner.nextLine();
+
+        Optional<Serie> serieBuscada = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
+
+        if(serieBuscada.isPresent()){
+            System.out.println("Dados da série: " + serieBuscada.get());
+
+        } else{
+            System.out.println("Série não encontrada");
+        }
+    }
+
+    private void buscarSeriePorAtor() {
+        System.out.println("Qual o nome para busca: ");
+        var nomeAtor = scanner.nextLine();
+
+        System.out.println("Avaliações a partir de qual valor: ");
+        var avaliacao = scanner.nextDouble();
+
+        List<Serie> seriesEncontradas = repositorio.findByAtoresContainingIgnoreCaseAndAvaliacaoImdbGreaterThanEqual(nomeAtor, avaliacao);
+
+        System.out.println("Séries em que " + nomeAtor + " trabalhou");
+        seriesEncontradas.forEach(s -> System.out.println(s.getTitulo() + " - avaliação: " +  s.getAvaliacaoImdb()));
+    }
+
+    private void buscarTop5Series() {
+        List<Serie> seriesTop = repositorio.findTop5ByOrderByAvaliacaoImdbDesc();
+        seriesTop.forEach(s -> System.out.println
+                (s.getTitulo() + " - avaliação: " +  s.getAvaliacaoImdb()));
+    }
+
+    private void buscarSeriePorCategoria() {
+        System.out.println("Informe a categoria de série que você procura: ");
+        var nomeGenero = scanner.nextLine();
+
+        Categoria categoria = Categoria.fromPortugues(nomeGenero);
+
+        List<Serie> seriesPorCategoria = repositorio.findByGenero(categoria);
+
+        System.out.println("Séries da categoria " + nomeGenero + ":");
+        seriesPorCategoria.forEach(System.out::println);
+    }
+
+    private void buscarEpisodioPorQuantidadeTemporadas() {
+        System.out.println("Informe a partir de quantas temporadas deseja maratonar: ");
+        var quantidadeTemporadas = scanner.nextInt();
+
+        System.out.println("Avaliações a partir de qual valor: ");
+        var avaliacao = scanner.nextDouble();
+
+        List<Serie> seriePorTemporadas = repositorio.findByTotalTemporadasGreaterThanEqualAndAvaliacaoImdbGreaterThanEqual(quantidadeTemporadas, avaliacao);
+
+        seriePorTemporadas.forEach(System.out::println);
     }
 }

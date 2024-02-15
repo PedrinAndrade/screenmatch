@@ -36,7 +36,7 @@ public class Serie {
             this.avaliacaoImdb = 0.0;
         }
 
-        this.genero = Categoria.fromPortugues(dadosSerie.genero().split(",")[0].trim());
+        this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
         this.atores = dadosSerie.atores();
         this.poster = dadosSerie.poster();
         this.sinopse = Tradutor.traduzirInglesParaPortugues(dadosSerie.sinopse());
