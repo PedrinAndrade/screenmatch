@@ -245,7 +245,7 @@ public class Principal {
             scanner.nextLine();
 
             List<Episodio> episodioAno = repositorio.episodiosPorSerieEAno(serie, anoLancamento);
-            episodioAno.forEach(System.out::println11);
+            episodioAno.forEach(System.out::println);
 
         }
     }
